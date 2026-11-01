@@ -398,8 +398,10 @@
 // a slightly different color space from http://www5.informatik.tu-muenchen.de/lehre/vorlesungen/graphik/info/csc/COL_34.htm
 //          Chroma2         = 1.8215 * (Chroma2_8bit - 137)
 //          Chroma1         = 2.2179 * (Chroma1_8bit - 156)
-            U[y][x] = 1.8215 * (orig_cb[y][x] - 137);
-            V[y][x] = 2.2179 * (orig_cr[y][x] - 156);
+            // the file stores C1 first, so orig_cb is C1 (zero at 156, the B - Y term)
+            // and orig_cr is C2 (zero at 137, the R - Y term): these were swapped
+            U[y][x] = 2.2179 * (orig_cb[y][x] - 156);
+            V[y][x] = 1.8215 * (orig_cr[y][x] - 137);
             
 #else
             U[y][x] = orig_cb[y][x] - 128;
