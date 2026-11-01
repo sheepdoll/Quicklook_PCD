@@ -14,10 +14,10 @@
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
-			<key>UTTypeIdentifier</key><string>com.kodak.photoCD</string>
+			<key>UTTypeIdentifier</key><string>com.kodak.photocd</string>
 			<key>UTTypeDescription</key><string>Kodak PhotoCD Image Pac</string>
 			<key>UTTypeReferenceURL</key><string>http://tedfelix.com/PhotoCD/</string>
-			<key>UTTypeConformsTo</key><array><string>public.image</string><string>public.data</string></array>
+			<key>UTTypeConformsTo</key><array><string>public.data</string><string>public.content</string></array>
 			<key>UTTypeTagSpecification</key>
 			<dict><key>public.filename-extension</key><array><string>pcd</string><string>PCD</string></array></dict>
 		</dict>

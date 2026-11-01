@@ -2,8 +2,10 @@
 # clang and the Command Line Tools alone; no Xcode, no project file.
 #
 #   make            build build/QuicklookPCD.app
-#   make install    copy it to ~/Applications and register it
-#   make uninstall  undo that
+#   make install    move it to ~/Applications and register it
+#   make refresh    restart the agent and Finder after an install, if icons or
+#                   the spacebar misbehave
+#   make uninstall  undo the install
 #
 # macOS 15 dropped .qlgenerator, so src/main.c and src/Generate*ForURL.m (kept
 # for the record, with the Xcode project) are not built.  src/image.m is the
@@ -34,11 +36,21 @@ $(APP): ext/host.m ext/Host-Info.plist src/image.m src/image.h ext/*.m ext/*-Inf
 install: all
 	mkdir -p $(DEST)
 	rm -rf $(DEST)/QuicklookPCD.app
-	cp -R $(APP) $(DEST)/
+	# moved, not copied: a second registered copy with the same bundle IDs
+	# is the likely reason macOS dropped both extensions on 2026-11-01
+	-$(LSREG) -u $(APP)
+	mv $(APP) $(DEST)/
 	$(LSREG) -f $(DEST)/QuicklookPCD.app
 	pluginkit -a $(DEST)/QuicklookPCD.app/Contents/PlugIns/PCDPreview.appex
 	pluginkit -a $(DEST)/QuicklookPCD.app/Contents/PlugIns/PCDThumbnail.appex
 	qlmanage -r >/dev/null 2>&1; qlmanage -r cache >/dev/null 2>&1; true
+	@echo "Installed.  If icons or the spacebar misbehave: make refresh"
+
+refresh:
+	# by full path, and -KILL: on 2026-11-01 it outlived killall and a plain pkill,
+	# and only a new agent stopped sending .PCD to Apple's image extension
+	-pkill -KILL -f com.apple.quicklook.ThumbnailsAgent
+	-killall Finder
 
 uninstall:
 	-pluginkit -r $(DEST)/QuicklookPCD.app/Contents/PlugIns/PCDPreview.appex
@@ -49,4 +61,4 @@ uninstall:
 clean:
 	rm -rf build
 
-.PHONY: all install uninstall clean
+.PHONY: all install refresh uninstall clean

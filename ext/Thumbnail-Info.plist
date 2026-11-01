@@ -17,7 +17,7 @@
 		<key>NSExtensionPrincipalClass</key><string>PCDThumbnailProvider</string>
 		<key>NSExtensionAttributes</key>
 		<dict>
-			<key>QLSupportedContentTypes</key><array><string>com.kodak.photoCD</string></array>
+			<key>QLSupportedContentTypes</key><array><string>com.kodak.photocd</string></array>
 			<key>QLThumbnailMinimumDimension</key><integer>0</integer>
 		</dict>
 	</dict>

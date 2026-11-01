@@ -17,7 +17,7 @@
 		<key>NSExtensionPrincipalClass</key><string>PCDPreviewProvider</string>
 		<key>NSExtensionAttributes</key>
 		<dict>
-			<key>QLSupportedContentTypes</key><array><string>com.kodak.photoCD</string></array>
+			<key>QLSupportedContentTypes</key><array><string>com.kodak.photocd</string></array>
 			<key>QLIsDataBasedPreview</key><true/>
 			<key>QLSupportsSearchableItems</key><false/>
 		</dict>

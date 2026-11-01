@@ -16,20 +16,24 @@ now a pair of app extensions inside a small host app, which also declares the `.
 No Xcode project: clang and the Command Line Tools (`xcode-select --install`), macOS 12 or later.
 
     make            # build/QuicklookPCD.app, ad-hoc signed
-    make install    # copies it to ~/Applications and registers it
+    make install    # moves it to ~/Applications and registers it
+    make refresh    # restarts the thumbnail agent and Finder
     make uninstall
 
 Built and run on macOS 26.5.1.  Not yet tried on other versions.
 
 If previews do not appear, check System Settings, General, Login Items & Extensions, Quick Look.
 `qlmanage -m` does not list extensions; use `pluginkit -mAv | grep kodak`.
-macOS caches thumbnails: after a rebuild run `qlmanage -r cache` and relaunch Finder.  A request
-in the first few seconds after `make install` can fail.
+After reinstalling, Finder and the thumbnail agent can hold on to the old extension: icons vanish
+or the spacebar gives an error until `make refresh`.  A request in the first few seconds after
+`make install` can also fail.  Keep only one copy of the app registered.
 
 # Fixed in this version
 * The C1 and C2 chroma offsets and scales were swapped, which left everything with a blue-teal cast.
 
 # Known
+* The type is declared as data, not `public.image`: as an image, the thumbnail agent can hand it
+  to Apple's image extension, which cannot read it, and the icons go blank.
 * Previews are dim on purpose: `255/330` in `src/image.m` keeps the highlights above white.
 * The `rotate` flag in the Image Pac header is read but not applied.
 
