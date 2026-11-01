@@ -166,6 +166,11 @@
 
 
 
+- (void)setOverviewImage:(unsigned int)n
+{
+    overviewImage = n;
+}
+
 - (CGImageRef)loadPCD:(CFStringRef)filenameCF: (unsigned int) subimage
 {
     FILE   *inimage;        // input file
@@ -316,15 +321,14 @@
     offset=93;
     
     if (overview)
-        offset=2;
+        offset=2 + 18*overviewImage;   // the images are back to back, 18 sectors each
     else
         if (subimage == 2)
             offset=20;
         else
             if (subimage <= 1)
                 offset=1;
-    for (i=0; i < (offset*0x800); i++)
-        (void) fgetc(inimage);
+    fseek(inimage, offset*0x800, SEEK_CUR);
         
    // y = orig_y;
     /*c1=chroma1; */

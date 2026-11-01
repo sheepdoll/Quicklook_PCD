@@ -52,6 +52,8 @@
     uint8 bps;          // bit per sample
     uint8 channels;     // channels
     uint  cp;           // color depth (#colors)
+
+    unsigned int overviewImage; // which image of an OVERVIEW.PCD, from 0
 }
 
 
@@ -62,6 +64,7 @@
 
 // general case
 - (CGImageRef)loadPCD:(CFStringRef)filename :(unsigned int )subimage;
+- (void)setOverviewImage:(unsigned int)n;
 
 
 

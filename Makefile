@@ -13,7 +13,7 @@ APP    = build/QuicklookPCD.app
 DEST   = $(HOME)/Applications
 LSREG  = /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
 CFLAGS = -O2 -mmacosx-version-min=12.0 -fapplication-extension -Isrc -Wno-deprecated-declarations
-LIBS   = -framework Cocoa -framework QuickLookThumbnailing -framework QuickLookUI
+LIBS   = -framework Cocoa -framework QuickLookThumbnailing -framework QuickLookUI -framework PDFKit
 
 all: $(APP)
 
@@ -26,7 +26,7 @@ $(APP): ext/host.m ext/Host-Info.plist src/image.m src/image.h ext/*.m ext/*-Inf
 	  d=$(APP)/Contents/PlugIns/PCD$$e.appex/Contents; \
 	  mkdir -p $$d/MacOS; \
 	  cp ext/$$e-Info.plist $$d/Info.plist; \
-	  clang $(CFLAGS) $(LIBS) -e _NSExtensionMain ext/PCD$${e}Provider.m src/image.m -o $$d/MacOS/PCD$$e || exit 1; \
+	  clang $(CFLAGS) $(LIBS) -e _NSExtensionMain -Iext ext/PCD$${e}Provider.m ext/overview.m src/image.m -o $$d/MacOS/PCD$$e || exit 1; \
 	  codesign -s - -f --entitlements ext/sandbox.entitlements $(APP)/Contents/PlugIns/PCD$$e.appex || exit 1; \
 	done
 	codesign -s - -f $(APP)

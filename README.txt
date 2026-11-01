@@ -1,6 +1,7 @@
 # Overview
 Quick Look for Kodak Photo CD Image Pacs (`.PCD`): Finder thumbnails, Gallery view and the
-spacebar preview, at Base resolution (768 x 512) only.  4Base and up are Huffman coded and are
+spacebar preview, at Base resolution (768 x 512) only.  An OVERVIEW.PCD previews as pages of
+numbered thumbnails.  4Base and up are Huffman coded and are
 not read yet.
 
 macOS 15 (Sequoia) removed `.qlgenerator` support, so the old plug-in no longer loads.  This is

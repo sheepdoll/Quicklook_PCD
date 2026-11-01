@@ -3,7 +3,9 @@
  * src/GeneratePreviewForURL.m around the same reader (src/image.m). */
 #import <Cocoa/Cocoa.h>
 #import <QuickLookUI/QuickLookUI.h>
+#import <PDFKit/PDFKit.h>
 #import "image.h"
+#import "overview.h"
 
 @interface PCDPreviewProvider : QLPreviewProvider <QLPreviewingController>
 @end
@@ -13,6 +15,16 @@
 - (void)providePreviewForFileRequest:(QLFilePreviewRequest *)request
                    completionHandler:(void (^)(QLPreviewReply *, NSError *))handler
 {
+    NSString *path = [[request fileURL] path];
+    if (PCDIsOverview(path)) {
+        QLPreviewReply *reply = [[[QLPreviewReply alloc]
+            initForPDFWithPageSize:PCDOverviewPageSize()
+             documentCreationBlock:^PDFDocument *(QLPreviewReply *r, NSError **err) {
+                return PCDOverviewDocument(path);
+            }] autorelease];
+        handler(reply, nil);
+        return;
+    }
     pcdReader *reader = [[pcdReader alloc] init];
     CGImageRef image = [reader loadPCD:(CFStringRef) [[request fileURL] path] :3];
     if (image == NULL) {
