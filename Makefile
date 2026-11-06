@@ -1,4 +1,5 @@
-# Quicklook_PCD -- a Quick Look extension for Photo CD Image Pacs, Base only.
+# Quicklook_PCD -- a Quick Look extension for Photo CD Image Pacs: the
+# spacebar shows 16Base (3072 x 2048) through src/pcdhuff.c, the icons Base.
 # clang and the Command Line Tools alone; no Xcode, no project file.
 #
 #   make            build build/QuicklookPCD.app
@@ -6,6 +7,7 @@
 #   make refresh    restart the agent and Finder after an install, if icons or
 #                   the spacebar misbehave
 #   make uninstall  undo the install
+#   make pcdtoppm   build/pcdtoppm, the same reader on the command line
 #
 # macOS 15 dropped .qlgenerator, so src/main.c and src/Generate*ForURL.m (kept
 # for the record, with the Xcode project) are not built.  src/image.m is the
@@ -19,7 +21,7 @@ LIBS   = -framework Cocoa -framework QuickLookThumbnailing -framework QuickLookU
 
 all: $(APP)
 
-$(APP): ext/host.m ext/Host-Info.plist src/image.m src/image.h ext/*.m ext/*-Info.plist ext/sandbox.entitlements
+$(APP): ext/host.m ext/Host-Info.plist src/image.m src/image.h src/pcdhuff.c src/pcdhuff.h ext/*.m ext/*-Info.plist ext/sandbox.entitlements
 	rm -rf $(APP)
 	mkdir -p $(APP)/Contents/MacOS
 	cp ext/Host-Info.plist $(APP)/Contents/Info.plist
@@ -28,10 +30,16 @@ $(APP): ext/host.m ext/Host-Info.plist src/image.m src/image.h ext/*.m ext/*-Inf
 	  d=$(APP)/Contents/PlugIns/PCD$$e.appex/Contents; \
 	  mkdir -p $$d/MacOS; \
 	  cp ext/$$e-Info.plist $$d/Info.plist; \
-	  clang $(CFLAGS) $(LIBS) -e _NSExtensionMain -Iext ext/PCD$${e}Provider.m ext/overview.m src/image.m -o $$d/MacOS/PCD$$e || exit 1; \
+	  clang $(CFLAGS) $(LIBS) -e _NSExtensionMain -Iext ext/PCD$${e}Provider.m ext/overview.m src/image.m src/pcdhuff.c -o $$d/MacOS/PCD$$e || exit 1; \
 	  codesign -s - -f --entitlements ext/sandbox.entitlements $(APP)/Contents/PlugIns/PCD$$e.appex || exit 1; \
 	done
 	codesign -s - -f $(APP)
+
+pcdtoppm: build/pcdtoppm
+
+build/pcdtoppm: tools/pcdtoppm.c src/pcdhuff.c src/pcdhuff.h
+	mkdir -p build
+	clang -O2 -std=c99 -Wall -Wextra -Isrc tools/pcdtoppm.c src/pcdhuff.c -o $@
 
 install: all
 	mkdir -p $(DEST)
@@ -61,4 +69,4 @@ uninstall:
 clean:
 	rm -rf build
 
-.PHONY: all install refresh uninstall clean
+.PHONY: all install refresh uninstall clean pcdtoppm

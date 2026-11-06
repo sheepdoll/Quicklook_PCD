@@ -20,6 +20,43 @@
  */
 #include <stdio.h>
 #import "image.h"
+#include "pcdhuff.h"
+
+/* 4Base and 16Base (subimage 4, 5): the whole file through pcdhuff.c,
+   straight into the bitmap.  The highest resolution present is shown if
+   the file stops short of the one asked for. */
+static CGImageRef loadHighRes(const char *filename, unsigned int subimage)
+{
+    FILE *f = fopen(filename, "rb");
+    unsigned char *buf;
+    size_t n = 0, cap = 8 << 20, r;
+    PCDPlanes p;
+    int got;
+    NSBitmapImageRep *rep;
+
+    if (f == NULL) return NULL;
+    buf = (unsigned char *) malloc(cap);
+    while (buf != NULL && (r = fread(buf + n, 1, cap - n, f)) > 0) {
+        n += r;
+        if (n == cap) buf = (unsigned char *) realloc(buf, cap *= 2);
+    }
+    fclose(f);
+    if (buf == NULL) return NULL;
+    got = PCDDecode(buf, n, (int) subimage, &p);
+    free(buf);
+    if (!got) return NULL;
+    NSLog(@"Image Pac read at %s, %dx%d", got == 5 ? "16Base" : got == 4 ? "4Base" : "Base", p.w, p.h);
+    rep = [[NSBitmapImageRep alloc]
+              initWithBitmapDataPlanes:NULL
+              pixelsWide:p.w pixelsHigh:p.h bitsPerSample:8
+              samplesPerPixel:3 hasAlpha:NO isPlanar:NO
+              colorSpaceName:NSDeviceRGBColorSpace
+              bytesPerRow:p.w * 3 bitsPerPixel:24];
+    if (rep == NULL) { PCDFreePlanes(&p); return NULL; }
+    PCDToRGB(&p, [rep bitmapData], (size_t) [rep bytesPerRow]);
+    PCDFreePlanes(&p);
+    return [rep CGImage];
+}
 
 
 @implementation pcdReader
@@ -285,6 +322,10 @@
         
     if (overview)
         subimage=1;
+    else if (subimage >= 4) {
+        fclose(inimage);
+        return loadHighRes(filename, subimage);
+    }
         
     /*
         Initialize image structure.

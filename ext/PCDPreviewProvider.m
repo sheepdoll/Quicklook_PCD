@@ -26,7 +26,8 @@
         return;
     }
     pcdReader *reader = [[pcdReader alloc] init];
-    CGImageRef image = [reader loadPCD:(CFStringRef) [[request fileURL] path] :3];
+    /* the spacebar: 16Base, or the highest resolution the Pac holds */
+    CGImageRef image = [reader loadPCD:(CFStringRef) [[request fileURL] path] :5];
     if (image == NULL) {
         handler(nil, [NSError errorWithDomain:NSCocoaErrorDomain
                                          code:NSFileReadCorruptFileError userInfo:nil]);
