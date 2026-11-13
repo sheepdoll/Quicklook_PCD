@@ -58,8 +58,8 @@ void PCDFreePlanes(PCDPlanes *p);
 int PCDDecode(const unsigned char *pac, size_t n, int want, PCDPlanes *out);
 
 /* PhotoYCC -> 8-bit RGB, 3 bytes a pixel, rows of `stride` bytes: image.m's
- * PSCS arithmetic (luma x 1.3584, C1 2.2179 about 156, C2 1.8215 about 137,
- * then (v - 16) x 255 / 330), a pixel at a time instead of through full-size
+ * pcd_iView.ps ycbcr2rgb4 (2026-11-12): 1.164 (Y - 16), C1 about 156, C2 about
+ * 137 (R +1.793 C2, G -0.213 C1 -0.533 C2, B +2.112 C1), a pixel at a time instead of through full-size
  * double planes -- 16Base would have needed ~190 MB */
 void PCDToRGB(const PCDPlanes *p, unsigned char *rgb, size_t stride);
 

@@ -34,7 +34,13 @@ or the spacebar gives an error until `make refresh`.  A request in the first few
 # Known
 * The type is declared as data, not `public.image`: as an image, the thumbnail agent can hand it
   to Apple's image extension, which cannot read it, and the icons go blank.
-* Previews are dim on purpose: `255/330` in `src/image.m` keeps the highlights above white.
+* `k4050Diagnostics/PCDImageArtifacts/IMG0004.PCD` (SN 0228, fw 3.56, 1999) previews with
+  horizontal red bands.  They are in the file, not a reader bug: Base/16, Base/4 and Base, each
+  stored in its own sectors, carry the same bands at the same image heights (every 1/8 of the
+  frame, plus a cluster around the middle), each a row-wide lift in Y and C2 that fades over
+  about 8 Base lines, and the black border lifts too.  [checked 2026-11-02]
+* Colour: `pcd_iView.ps`'s `ycbcr2rgb4` (1.164 (Y - 16), C1 about 156, C2 about 137), black at
+  stored 16, clamped to 0..255, in both `src/pcdhuff.c` and `src/image.m`.  [2026-11-12]
 * The `rotate` flag in the Image Pac header is read but not applied.
 
 # To do

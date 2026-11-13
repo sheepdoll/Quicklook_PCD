@@ -486,9 +486,14 @@ static CGImageRef loadHighRes(const char *filename, unsigned int subimage)
 
 // a slightly different color space from http://www5.informatik.tu-muenchen.de/lehre/vorlesungen/graphik/info/csc/COL_34.htm
   
-            tempR = Y[y][x] + V[y/2][x/2];
-            tempG = Y[y][x] - 0.194 * U[y/2][x/2] - 0.509 * V[y/2][x/2];
-            tempB = Y[y][x] + U[y/2][x/2];
+            // [operator, 2026-11-12] pcd_iView.ps ycbcr2rgb4: undo the 1.3584 / 2.2179 /
+            // 1.8215 scaling above back to stored codes, then black at 16
+            {
+                const double y8 = Y[y][x] / 1.3584, u8 = U[y/2][x/2] / 2.2179, v8 = V[y/2][x/2] / 1.8215;
+                tempR = 1.164 * (y8 - 16) + 1.793 * v8;
+                tempG = 1.164 * (y8 - 16) - 0.213 * u8 - 0.533 * v8;
+                tempB = 1.164 * (y8 - 16) + 2.112 * u8;
+            }
             
 // this results in RGB values from 0 to 346 (instead of the more usual 0 to 255) 
 // a look-up-table is usually used to convert these through a non-linear function to 8 bit data
@@ -496,9 +501,6 @@ static CGImageRef loadHighRes(const char *filename, unsigned int subimage)
 // since this is used for previews we can either chop the highlights or scale things to fit 
 // there is often too much highlight in the  shadows, so dump the lowest 32 values and scale the rest
             
-            tempR = (tempR-16) * (255.0/330.0);
-            tempG = (tempG-16) * (255.0/330.0);
-            tempB = (tempB-16) * (255.0/330.0);
             
             r = CHOP((int)(tempR)); 
             g = CHOP((int)(tempG)); 

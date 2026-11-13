@@ -225,11 +225,14 @@ void PCDToRGB(const PCDPlanes *p, unsigned char *rgb, size_t stride)
         const unsigned char *c2 = p->c2 + (size_t)(y / 2) * (p->w / 2);
         unsigned char *o = rgb + (size_t) y * stride;
         for (x = 0; x < p->w; x++) {
-            const double U = 2.2179 * (c1[x / 2] - 156), V = 1.8215 * (c2[x / 2] - 137);
-            const double Y = yr[x] * 1.3584;
-            const double tR = (Y + V - 16) * (255.0 / 330.0);
-            const double tG = (Y - 0.194 * U - 0.509 * V - 16) * (255.0 / 330.0);
-            const double tB = (Y + U - 16) * (255.0 / 330.0);
+            /* [operator, 2026-11-12] pcd_iView.ps ycbcr2rgb4 ("high def"): black at
+               16, chroma about 156 / 137, clamped to 0..255.  Was Kodak's matrix
+               then (x - 16) * 255/330. */
+            const double U = c1[x / 2] - 156, V = c2[x / 2] - 137;
+            const double Y = 1.164 * (yr[x] - 16);
+            const double tR = Y + 1.793 * V;
+            const double tG = Y - 0.213 * U - 0.533 * V;
+            const double tB = Y + 2.112 * U;
             const int r = (int) tR, g = (int) tG, b = (int) tB;
             o[3 * x] = (unsigned char) CHOP(r);
             o[3 * x + 1] = (unsigned char) CHOP(g);
